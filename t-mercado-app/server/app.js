@@ -15,12 +15,12 @@ app.use(express.json());
 // connect DB
 mongoose.set('useUnifiedTopology', true);
 mongoose.set('useCreateIndex', true);
-mongoose.connect(process.env.CONNECT_DB2, { useNewUrlParser: true })
+mongoose.connect(process.env.CONNECT_DB, { useNewUrlParser: true })
     .then(() => {
         console.log('DB Connection Successful')
     })
     .catch((error) =>{
-        console.log('DB Connection Failed\n' + error);
+        console.log('DB Connection Failed');
     });
 
 // use route middleware

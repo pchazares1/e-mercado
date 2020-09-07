@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 // RFC 2822
 
 const matchEmail = validate => {
-    console.log(validate + " " + accountSchema.email.value);
     if (validate === accountSchema.email) return validate;
 }
 
@@ -28,7 +27,7 @@ const accountSchema = mongoose.Schema({
     },
     cemail: {
         type: String,
-        required: [true, 'Confirmation password is required'],
+        required: [true, 'Confirmation email is required'],
         minlength: 3,
         validate: [matchEmail, 'Must match your email']
     },
