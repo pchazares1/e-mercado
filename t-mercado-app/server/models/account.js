@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 // RFC 2822
 
 const matchEmail = validate => {
-    console.log(validate + " " + accountSchema.email.value);
+    console.log('Account Schema: \n' + accountSchema.path('email').value);
     if (validate === accountSchema.email) return validate;
 }
 
