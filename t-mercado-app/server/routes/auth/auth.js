@@ -8,7 +8,10 @@ const errorFormat = require('./errorFormat');
 
 router.post('/signup', async (req, res) => {
     const emailExists = await Account.findOne({ email: req.body.email });
-    if (emailExists) return res.status(400).json({ error: { message: 'Email already exists' } });
+    if (emailExists) return res.status(400).json({ error: 'Email already exists' });
+    // TODO: change method of validating confirmation email and password within the schema
+    if (req.body.cemail !== req.body.email) return res.status(400).json({ error: 'Must match email'});
+    if (req.body.cpassword !== req.body.password) return res.status(400).json({ error: 'Must match password'});
 
     const account = new Account({
         fname: req.body.fname,
