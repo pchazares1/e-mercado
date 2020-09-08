@@ -25,22 +25,10 @@ const accountSchema = mongoose.Schema({
         minlength: [3, 'Email cannot be less than 3 letters'],
         match: [/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/, 'Not a valid email']
     },
-    cemail: {
-        type: String,
-        required: [true, 'Confirmation email is required'],
-        minlength: 3,
-        validate: [matchEmail, 'Must match your email']
-    },
     password: {
         type: String,
         required: [true, 'Password is required'],
         min: [8, 'Password cannot be less than 8 letters']
-    },
-    cpassword: {
-        type: String,
-        required: [true, 'Confirmation password is required'],
-        min: 8,
-        validate: [matchPassword, 'Must match your password']
     },
     date: {
         type: Date,
