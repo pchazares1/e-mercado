@@ -1,2 +1,2 @@
 # t-mercado
-Clothing shopping website using MERN
+An e-commerce shopping website developed in MERN.
