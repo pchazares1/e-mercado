@@ -2,89 +2,52 @@ const express = require('express');
 const router = express.Router();
 const Account = require('../../models/account');
 const argon2 = require('argon2');
-const { body, validationResults } = require('express-validator');
+const { validationResult } = require('express-validator');
+const signupValidation = require('./signupValidation');
 
-router.post('/signup', [
-    body('fname')
-        .notEmpty()
-        .bail()
-        .isString()
-        .bail()
-        .isLength({ min: 2 })
-        .bail()
-        .isAlpha()
-        .bail(),
-    body('lname')
-        .notEmpty()
-        .bail()
-        .isString()
-        .bail()
-        .isLength({ min: 2 })
-        .bail()
-        .isAlpha()
-        .bail(),
-    body('email')
-        .notEmpty()
-        .bail()
-        .isLength({ min: 3 })
-        .bail()
-        .isEmail(),
-    body('cemail')
-        .notEmpty()
-        .bail()
-        .custom((value, { req }) => {
-            if (value !== req.body.email) {
-                throw new Error('Must match email');
-            }
-        })
-        .bail(),
-    body('password')
-        .notEmpty()
-        .bail()
-        .isLength({ min: 8 })
-        .bail()
-        .matches((/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,})$/, "i"),
-    body('cpassword')
-        .notEmpty()
-        .bail()
-        .custom((value, { req }) => {
-            if (value !== req.body.password) {
-                throw new Error('Must match password');
-            }
-        })],
-    async (req, res) => {
-        const emailExists = await Account.findOne({ email: req.body.email });
-        let hashPassword = '';
-        if (emailExists) return res.status(400).json({ error: 'Email already exists' });
+router.post('/signup', signupValidation(), async (req, res) => {
+    let errors;
+    try {
+        errors = await validationResult(req).throw();
+    } catch (err) {
+        console.log(err);
+        return res.status(400).json({ error: 'Validation Result Error' })
+    }
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+    const emailExists = await Account.findOne({ email: req.body.email });
+    let hashPassword = '';
+    if (emailExists) return res.status(400).json({ error: 'Email already exists' });
 
-        // TODO: change method of validating confirmation email and password within the schema
-        if (req.body.cemail !== req.body.email) return res.status(400).json({ error: 'Must match email' });
+    // TODO: change method of validating confirmation email and password within the schema
+    if (req.body.cemail !== req.body.email) return res.status(400).json({ error: 'Must match email' });
 
-        if (req.body.cpassword !== req.body.password) {
-            return res.status(400).json({ error: 'Must match password' });
-        } else {
-            // hash password
-            try {
-                hashPassword = await argon2.hash(req.body.password);
-            } catch (error) {
-                console.log(error);
-            }
-        }
-
-        const account = new Account({
-            fname: req.body.fname,
-            lname: req.body.lname,
-            email: req.body.email,
-            password: hashPassword
-        });
-
+    if (req.body.cpassword !== req.body.password) {
+        return res.status(400).json({ error: 'Must match password' });
+    } else {
+        // hash password
         try {
-            const savedAccount = await account.save();
-            res.status(200).json({ message: 'Account successfully created' });
+            hashPassword = await argon2.hash(req.body.password);
         } catch (error) {
-            res.status(400).json({ message: error.message });
+            console.log(error);
         }
+    }
+
+    const account = new Account({
+        fname: req.body.fname,
+        lname: req.body.lname,
+        email: req.body.email,
+        password: hashPassword
     });
+
+    try {
+        const savedAccount = await account.save();
+        res.status(200).json({ message: 'Account successfully created' });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
 
 router.post('/login', async (req, res) => {
     /**
