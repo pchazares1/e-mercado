@@ -38,9 +38,7 @@ const signupValidation = () => {
         body('password')
             .notEmpty()
             .bail()
-            .isLength({ min: 8 })
-            .bail()
-            .matches(('^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W_]).{8,})$', 'i'),
+            .matches('/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_])(?=\\S+$).{6,}$/', 'g'),
         body('cpassword')
             .notEmpty()
             .bail()
@@ -48,7 +46,7 @@ const signupValidation = () => {
                 if (value !== req.body.password) {
                     throw new Error('Must match password');
                 }
-            }))];
+            })];
 } 
 
 module.exports = signupValidation;

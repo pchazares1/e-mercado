@@ -7,15 +7,19 @@ const signupValidation = require('./signupValidation');
 
 router.post('/signup', signupValidation(), async (req, res) => {
     let errors;
+    // Validaiton requests for express-validator
     try {
         errors = await validationResult(req).throw();
     } catch (err) {
         console.log(err);
-        return res.status(400).json({ error: 'Validation Result Error' })
+        return res.status(400).json({ error: err.array() });
     }
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-    }
+    // return error response
+    // if (!errors.isEmpty()) {
+    //     return res.status(400).json({ errors: errors.array() });
+    // }
+
+    // Check if the email exists in the DB
     const emailExists = await Account.findOne({ email: req.body.email });
     let hashPassword = '';
     if (emailExists) return res.status(400).json({ error: 'Email already exists' });
