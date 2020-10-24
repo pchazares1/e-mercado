@@ -13,7 +13,7 @@ router.post('/signup', signupValidation(), async (req, res) => {
         res.status(200).json({ message: 'Authentication Successful'})
     } catch (err) {
         console.log(err);
-        return res.status(400).json({ error: err.array() });
+        return res.status(400).json({ error: err.errors });
     }
     // return error response
     // if (!errors.isEmpty()) {
