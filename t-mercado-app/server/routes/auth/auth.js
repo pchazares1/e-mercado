@@ -10,6 +10,7 @@ router.post('/signup', signupValidation(), async (req, res) => {
     // Validaiton requests for express-validator
     try {
         errors = await validationResult(req).throw();
+        res.status(200).json({ message: 'Authentication Successful'})
     } catch (err) {
         console.log(err);
         return res.status(400).json({ error: err.array() });

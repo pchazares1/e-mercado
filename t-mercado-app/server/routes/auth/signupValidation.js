@@ -25,28 +25,32 @@ const signupValidation = () => {
             .bail()
             .isLength({ min: 3 })
             .bail()
-            .isEmail(),
+            .isEmail()
+            .bail(),
         body('cemail')
-            .notEmpty()
-            .bail()
             .custom((value, { req }) => {
                 if (value !== req.body.email) {
                     throw new Error('Must match email');
+                } else {
+                    return true;
                 }
             })
             .bail(),
         body('password')
             .notEmpty()
             .bail()
-            .matches('/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_])(?=\\S+$).{6,}$/', 'g'),
+            .matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_]).{6,}$/, 'g')
+            .bail(),
         body('cpassword')
-            .notEmpty()
-            .bail()
             .custom((value, { req }) => {
                 if (value !== req.body.password) {
                     throw new Error('Must match password');
+                } else {
+                    return true;
                 }
-            })];
+            })
+            .bail()
+        ];
 } 
 
 module.exports = signupValidation;
