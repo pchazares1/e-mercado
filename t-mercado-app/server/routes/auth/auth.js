@@ -1,20 +1,36 @@
 const express = require('express');
 const router = express.Router();
 const Account = require('../../models/account');
-const errorFormat = require('./errorFormat');
 const argon2 = require('argon2');
+const { validationResult } = require('express-validator');
+const signupValidation = require('./signupValidation');
 
-// return a map of error key and error message value
+router.post('/signup', signupValidation(), async (req, res) => {
+    let errors;
+    // Validaiton requests for express-validator
+    try {
+        errors = await validationResult(req).throw();
+        res.status(200).json({ message: 'Authentication Successful'})
+    } catch (err) {
+        
+        const errArr = err.array();
+        const newErrArr = errArr.map(err => err.msg);
+        console.log(newErrArr);
+        return res.status(400).json({ error: newErrArr });
+    }
+    // return error response
+    // if (!errors.isEmpty()) {
+    //     return res.status(400).json({ errors: errors.array() });
+    // }
 
-
-router.post('/signup', async (req, res) => {
+    // Check if the email exists in the DB
     const emailExists = await Account.findOne({ email: req.body.email });
     let hashPassword = '';
     if (emailExists) return res.status(400).json({ error: 'Email already exists' });
-    
+
     // TODO: change method of validating confirmation email and password within the schema
     if (req.body.cemail !== req.body.email) return res.status(400).json({ error: 'Must match email' });
-    
+
     if (req.body.cpassword !== req.body.password) {
         return res.status(400).json({ error: 'Must match password' });
     } else {
@@ -30,9 +46,7 @@ router.post('/signup', async (req, res) => {
         fname: req.body.fname,
         lname: req.body.lname,
         email: req.body.email,
-        cemail: req.body.cemail,
-        password: hashPassword,
-        cpassword: req.body.cpassword,
+        password: hashPassword
     });
 
     try {
@@ -40,6 +54,44 @@ router.post('/signup', async (req, res) => {
         res.status(200).json({ message: 'Account successfully created' });
     } catch (error) {
         res.status(400).json({ message: error.message });
+    }
+});
+
+router.post('/login', async (req, res) => {
+    /**
+     * Request password and email, verify if it matches from database.
+     * generate a webtoken when it matches
+     */
+    // Account.findOne({ email: req.body.email }).exec().then(user => {
+    //     if(!user) res.status(401).json({ error: 'Email does not exist'});
+
+    //     return argon2.verify(user.password, req.body.password);
+    // }).then(result => {
+    //     if(!result) res.status(401).json('Password does not match');
+
+    //     res.status(200).json('Auth Succesful');
+    // }).catch(error => {
+    //     console.log(error);
+    //     res.status(401).json('Auth Failed')
+    // });
+
+    try {
+        const user = await Account.findOne({ email: req.body.email }).exec();
+        let isPass = true;
+        if (!user) {
+            res.status(401).json({ error: 'Email does not exist' });
+        }
+        else if (user) {
+            isPass = argon2.verify(user.password, req.body.password);
+        }
+        else if (!isPass) {
+            res.status(401).json('Password does not match');
+        } else {
+            res.status(200).json('Auth Succesful');
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(401).json('Auth Failed');
     }
 });
 
