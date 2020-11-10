@@ -1,0 +1,14 @@
+.nav {
+  width: 100%;
+}
+.nav-list {
+  display: flex;
+  flex-direction: row;
+  align-content: space-between;
+  align-items: center;
+  justify-content: space-evenly;
+  background-color: #6a5ac6;
+  color: #ffffff;
+  height: 50px;
+  list-style-type: none;
+}
