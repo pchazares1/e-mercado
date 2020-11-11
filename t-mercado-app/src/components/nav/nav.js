@@ -1,10 +1,17 @@
 import React from 'react';
 import '../app/App.css';
+import { Link } from 'react-router-dom';
 
 function Nav() {
     return (
         <nav className='nav'>
-            <div className="nav-head"><h1>T-Mercado</h1></div>
+            <div className="nav-head">
+                <Link to="/"><h1>T-Mercado</h1></Link>
+                <div className="signin-container">
+                    <button><Link to='/login'>Login</Link></button>
+                    <Link to="/signup">Need an account?</Link>
+                </div>
+            </div>
             <ul className="nav-list">
                 <li>Home</li>
                 <li>Books</li>
